@@ -13,6 +13,7 @@ int main() {
     cout << "strList hasValue 3 " << strList.hasValue(string("3")) << endl;
     strList.remove(string("3"));
     cout << "strList hasValue 3 " << strList.hasValue(string("3")) << endl;
+    strList.insert(2, string("3"));
     while (!strList.isEmpty()) {
         auto value = strList.popFront();
         cout << "strList popFront value " << value << ", current size " << strList.length() << endl;

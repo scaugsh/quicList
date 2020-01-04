@@ -93,6 +93,22 @@ public:
         removeNode(node);
         return true;
     }
+
+    bool insert(uint32_t pos, const T &value) {
+        if (hasValue(value)) {
+            return false;
+        }
+        if (pos >= length()) {
+            pos = length();
+        }
+        auto node = m_fakeNode;
+        while (pos > 0) {
+            node = node->nxt;
+            pos--;
+        }
+        insertNode(node, value);
+        return true;
+    }
 };
 }
 
