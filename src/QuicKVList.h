@@ -142,6 +142,16 @@ public:
         func(node->kv.first, node->kv.second);
         return true;
     }
+
+    bool getValue(const Key &key, Value &value) {
+        auto it = m_key2ptr.find(key);
+        if (it == m_key2ptr.end()) {
+            return false;
+        }
+        auto node = it->second;
+        value = node->kv.second;
+        return true;
+    }
 };
 
 }
