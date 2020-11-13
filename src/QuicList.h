@@ -1,6 +1,8 @@
 #ifndef _ALER_QUICLIST_H_
 #define _ALER_QUICLIST_H_
 #include <map>
+#include <assert.h>
+
 namespace aler {
 template <typename T>
 class QuicList {
@@ -14,10 +16,13 @@ typedef struct ListNode {
 } ListNode;
     ListNode *m_fakeNode;
     std::map <T, ListNode *> m_value2ptr;
+    std::function<void (T &value)> m_onInsert;
+    std::function<void (T &value)> m_onRemove;
     //  remove node
     void removeNode(ListNode *node) {
         node->nxt->lst = node->lst;
         node->lst->nxt = node->nxt;
+        m_onRemove(node->value);
         m_value2ptr.erase(node->value);
         delete node;
     }
@@ -30,18 +35,31 @@ typedef struct ListNode {
         nxtNode->lst = newNode;
         node->nxt = newNode;
         newNode->value = value;
+        m_onInsert(newNode->value);
         m_value2ptr.insert(std::make_pair(value, newNode));
     }
 
+    ListNode *head() {return m_fakeNode->nxt;}
+    ListNode *tail() {return m_fakeNode->lst;}
+
 public:
-    QuicList() : m_fakeNode(new ListNode()) {}
-    ~QuicList() {delete m_fakeNode; m_fakeNode = NULL;}
+    QuicList() : m_fakeNode(new ListNode())
+               , m_onInsert([](T &value){})
+               , m_onRemove([](T &value){}) {}
+    ~QuicList() {reset(); delete m_fakeNode; m_fakeNode = NULL;}
 
     uint32_t length() {return m_value2ptr.size();}
     bool isEmpty() {return m_value2ptr.empty();}
 
-    ListNode *head() {return m_fakeNode->nxt;}
-    ListNode *tail() {return m_fakeNode->lst;}
+    const T &front() {
+        assert(isEmpty() == false);
+        return head()->value;
+    }
+
+    const T &back() {
+        assert(isEmpty() == false);
+        return tail()->value;
+    }
 
     void reset() {
         while (!isEmpty()) {
@@ -109,7 +127,21 @@ public:
         insertNode(node, value);
         return true;
     }
+
+    void setOnInsert(const std::function<void (T &value)> &func) { m_onInsert = func; }
+    void setOnRemove(const std::function<void (T &value)> &func) { m_onRemove = func; }
+
+    bool findValue(const T &value, const std::function<void (T &value)> &func) {
+        auto it = m_value2ptr.find(value);
+        if (it == m_value2ptr.end()) {
+            return false;
+        }
+        auto node = it->second;
+        func(node->value);
+        return true;
+    }
 };
+
 }
 
 #endif 
