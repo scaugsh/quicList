@@ -5,7 +5,7 @@ using namespace std;
 using aler::QuicKVList;
 int main() {
     QuicKVList <std::string, std::string> strList;
-    strList.setOnInsert([](const std::string &key, std::string &value) {cout << "onRemove, key " << key << " value " << value << endl;});
+    strList.setOnInsert([](const std::string &key, std::string &value) {cout << "onInsert, key " << key << " value " << value << endl;});
     strList.setOnRemove([](const std::string &key, std::string &value) {cout << "onRemove, key " << key << " value " << value << endl;});
     strList.pushBack(string("1"), string("one"));
     strList.pushBack(string("2"), string("two"));
@@ -19,7 +19,7 @@ int main() {
     strList.insert(2, string("3"), string("three"));
     while (!strList.isEmpty()) {
         auto kv = strList.popFront();
-        cout << "strList popFront key " << kv.first << ", value" << kv.second << ", current size " << strList.length() << endl;
+        cout << "strList popFront key " << kv.first << ", value " << kv.second << ", current size " << strList.length() << endl;
     }
     return 0;
 }
