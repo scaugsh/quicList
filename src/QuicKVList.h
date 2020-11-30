@@ -23,7 +23,9 @@ typedef struct ListNode {
     void removeNode(ListNode *node) {
         node->nxt->lst = node->lst;
         node->lst->nxt = node->nxt;
-        m_onRemove(node->kv.first, node->kv.second);
+        if (m_onRemove) {
+            m_onRemove(node->kv.first, node->kv.second);
+        }
         m_key2ptr.erase(node->kv.first);
         delete node;
     }
@@ -37,7 +39,9 @@ typedef struct ListNode {
         node->nxt = newNode;
         newNode->kv.first = key;
         newNode->kv.second = value;
-        m_onInsert(newNode->kv.first, newNode->kv.second);
+        if (m_onInsert) {
+            m_onInsert(newNode->kv.first, newNode->kv.second);
+        }
         m_key2ptr.insert(std::make_pair(key, newNode));
     }
 
@@ -46,8 +50,8 @@ typedef struct ListNode {
 
 public:
     QuicKVList() : m_fakeNode(new ListNode())
-               , m_onInsert([](const Key &key, Value &value){})
-               , m_onRemove([](const Key &key, Value &value){}) {}
+               , m_onInsert(nullptr){})
+               , m_onRemove(nullptr) {}
     ~QuicKVList() {reset(); delete m_fakeNode; m_fakeNode = NULL;}
 
     uint32_t length() {return m_key2ptr.size();}

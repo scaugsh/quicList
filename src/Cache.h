@@ -18,13 +18,28 @@ namespace aler {
 template <typename Key, typename Value>
 class Cache {
 protected:
-    ssize_t m_maxCacheSize;
+struct StatisticInfo {
+    uint32_t getAll;
+    uint32_t getSucc;
+    uint32_t setAll;
+    StatisticInfo() 
+        : getAll(0)
+        , getSucc(0)
+        , setAll(0) {}
+    void reset() {
+        getAll = 0;
+        getSucc = 0;
+        setAll = 0;
+    }
+};
 struct CacheValue {
     Value value;
     time_t expireTimeStamp;
 };
+    ssize_t m_maxCacheSize;
     QuicList<Key> m_keys;
     std::map<Key, CacheValue> m_datas;
+    StatisticInfo m_statisticInfo;
 protected:
     void checkTimeoutNode() {
         time_t now = time(NULL);
@@ -69,6 +84,7 @@ public:
     virtual ~Cache() { clear(); }
     void Timer() { checkTimeoutNode(); }
     bool set(const Key &key, const Value &value, int32_t ttl = -1) {
+        m_statisticInfo.setAll++;
         if (m_datas.size() >= m_maxCacheSize) {
             removeOldValue(m_datas.size() - m_maxCacheSize + 1);
         }
@@ -84,6 +100,7 @@ public:
     }
 
     bool get(const Key &key, Value *valuePtr = nullptr, int32_t *ttlPtr = nullptr) {
+        m_statisticInfo.getAll++;
         if (m_keys.hasValue(key) == false) {
             return false;
         }
@@ -97,6 +114,7 @@ public:
             m_datas.erase(it);
             return false;
         }
+        m_statisticInfo.getSucc++;
 
         updateKey(key);
 
@@ -116,6 +134,23 @@ public:
     void clear() {
         m_keys.reset();
         m_datas.clear();
+        m_statisticInfo.reset();
+    }
+
+    void resetStatistic() {
+        m_statisticInfo.reset();
+    }
+
+    uint32_t statisticInfoGetAll() {
+        return m_statisticInfo.getAll;
+    }
+
+    uint32_t statisticInfoGetSucc() {
+        return m_statisticInfo.getSucc;
+    }
+
+    uint32_t statisticInfoSetAll() {
+        return m_statisticInfo.setAll;
     }
 };
 

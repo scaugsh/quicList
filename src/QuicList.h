@@ -22,7 +22,9 @@ typedef struct ListNode {
     void removeNode(ListNode *node) {
         node->nxt->lst = node->lst;
         node->lst->nxt = node->nxt;
-        m_onRemove(node->value);
+        if (m_onRemove) {
+            m_onRemove(node->value);
+        }
         m_value2ptr.erase(node->value);
         delete node;
     }
@@ -35,7 +37,9 @@ typedef struct ListNode {
         nxtNode->lst = newNode;
         node->nxt = newNode;
         newNode->value = value;
-        m_onInsert(newNode->value);
+        if (m_onInsert) {
+            m_onInsert(newNode->value);
+        }
         m_value2ptr.insert(std::make_pair(value, newNode));
     }
 
@@ -44,8 +48,8 @@ typedef struct ListNode {
 
 public:
     QuicList() : m_fakeNode(new ListNode())
-               , m_onInsert([](T &value){})
-               , m_onRemove([](T &value){}) {}
+               , m_onInsert(nullptr)
+               , m_onRemove(nullptr) {}
     ~QuicList() {reset(); delete m_fakeNode; m_fakeNode = NULL;}
 
     uint32_t length() {return m_value2ptr.size();}
