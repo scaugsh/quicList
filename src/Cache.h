@@ -52,7 +52,7 @@ protected:
                 m_keys.popFront();
                 m_datas.erase(it);
             } else {
-                std::cout << "key " << key << ", expireTimeStamp " << value.expireTimeStamp << ", now " << now << std::endl;
+                // std::cout << "key " << key << ", expireTimeStamp " << value.expireTimeStamp << ", now " << now << std::endl;
                 break;
             }
         }
