@@ -2,7 +2,7 @@
 #define _ALER_QUICLIST_H_
 #include <map>
 #include <assert.h>
-
+#include <functional>
 namespace aler {
 template <typename T>
 class QuicList {
@@ -16,8 +16,8 @@ typedef struct ListNode {
 } ListNode;
     ListNode *m_fakeNode;
     std::map <T, ListNode *> m_value2ptr;
-    std::function<void (T &value)> m_onInsert;
-    std::function<void (T &value)> m_onRemove;
+    std::function<void (const T &value)> m_onInsert;
+    std::function<void (const T &value)> m_onRemove;
     //  remove node
     void removeNode(ListNode *node) {
         node->nxt->lst = node->lst;
@@ -132,10 +132,10 @@ public:
         return true;
     }
 
-    void setOnInsert(const std::function<void (T &value)> &func) { m_onInsert = func; }
-    void setOnRemove(const std::function<void (T &value)> &func) { m_onRemove = func; }
+    void setOnInsert(const std::function<void (const T &value)> &func) { m_onInsert = func; }
+    void setOnRemove(const std::function<void (const T &value)> &func) { m_onRemove = func; }
 
-    bool findValue(const T &value, const std::function<void (T &value)> &func) {
+    bool findValue(const T &value, const std::function<void (const T &value)> &func) {
         auto it = m_value2ptr.find(value);
         if (it == m_value2ptr.end()) {
             return false;
@@ -143,6 +143,12 @@ public:
         auto node = it->second;
         func(node->value);
         return true;
+    }
+
+    void forEach(const std::function<void (const T &value)> &func) {
+        for (ListNode *node = head(); node != m_fakeNode; node = node->nxt) {
+            func(node->value);
+        }
     }
 };
 

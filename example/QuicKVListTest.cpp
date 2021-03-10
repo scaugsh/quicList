@@ -17,6 +17,8 @@ int main() {
     strList.findKey(string("3"), [](const std::string &key, std::string &value) {cout << "findKey " << key << ", value " << value << endl;});
     cout << "strList hasKey 3 " << strList.hasKey(string("3")) << endl;
     strList.insert(2, string("3"), string("three"));
+
+    strList.forEach([](const std::string &key, std::string &value) { cout << "forEach key " << key << " value " << value << endl; value = "hahaha";});
     while (!strList.isEmpty()) {
         auto kv = strList.popFront();
         cout << "strList popFront key " << kv.first << ", value " << kv.second << ", current size " << strList.length() << endl;

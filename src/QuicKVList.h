@@ -50,7 +50,7 @@ typedef struct ListNode {
 
 public:
     QuicKVList() : m_fakeNode(new ListNode())
-               , m_onInsert(nullptr){})
+               , m_onInsert(nullptr)
                , m_onRemove(nullptr) {}
     ~QuicKVList() {reset(); delete m_fakeNode; m_fakeNode = NULL;}
 
@@ -155,6 +155,12 @@ public:
         auto node = it->second;
         value = node->kv.second;
         return true;
+    }
+
+    void forEach(const std::function<void (const Key &key, Value &value)> &func) {
+        for (ListNode *node = head(); node != m_fakeNode; node = node->nxt) {
+            func(node->kv.first, node->kv.second);
+        }
     }
 };
 
