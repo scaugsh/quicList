@@ -141,7 +141,7 @@ std::string SoftLink::dumpPath() {
 // --------------------------------------------------------
 
 FileManager::FileManager() 
-    : m_root(new Folder("root")) {}
+    : m_root(new Folder("")) {}
 
 FileManager::~FileManager() {}
 
