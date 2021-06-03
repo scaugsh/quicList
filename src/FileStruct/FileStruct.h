@@ -3,25 +3,28 @@
 #include <string>
 #include <memory>
 #include <map>
+#include <set>
 namespace aler {
 class FileManager;
 class FileBase;
 class File;
 class Folder;
 class SoftLink;
+class HardLink;
 
 enum FileType {
     FILE,
     FOLDER,
     SOFTLINK,
+    HARDLINK,
 };
-const static char *fileTypeName[] = {"FILE", "FOLDER", "SOFTLINK"}; 
-
+const static char *fileTypeName[] = {"FILE", "FOLDER", "SOFTLINK", "HARDLINK"}; 
 class FileBase: public std::enable_shared_from_this<FileBase> {
 protected:
     FileType m_type;
     std::string m_name;
     std::weak_ptr<Folder> m_parentFolder;
+    std::map<SoftLink *, std::weak_ptr<SoftLink>> m_softLinks; // key只用做查询和索引，如果需要用到软链接使用后面的weak_ptr
 public:
     FileBase(FileType type, const std::string &name);
     virtual ~FileBase();
@@ -31,6 +34,8 @@ public:
     const std::string &getName() { return m_name; }
     FileType getFileType() { return m_type; }
     void setParentFolder(const std::shared_ptr<Folder> &parentFolder) { m_parentFolder = parentFolder; }
+    void removeSoftLink(SoftLink *softLink) { m_softLinks.erase(softLink); }
+    uint32_t softLinkCnt() { return m_softLinks.size(); }
 };
 
 class File: public FileBase {
@@ -69,6 +74,15 @@ public:
     std::shared_ptr<FileBase> getLinkFile() { return m_linkFile.lock(); }
     bool expired() { return m_linkFile.expired(); }
 };
+
+// todo 补充硬链接实现
+// class HardLink: public FileBase { 
+// protected:
+//     std::shared_ptr<FileBase> m_linkFile; // 链接Folder其实很容易出问题，比如链接了父目录，或者两个硬链接文件交叉链接了彼此的父目录都会有问题，最好限制不能链接目录
+// public:
+//     virtual std::string dumpInfo() override { return ""; }
+//     virtual std::string dumpPath() override { return ""; }
+// };
 
 class FileManager {
 protected:

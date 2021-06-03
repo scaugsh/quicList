@@ -7,16 +7,20 @@ namespace aler {
 FileBase::FileBase(FileType type, const std::string &name) 
     : m_type(type)
     , m_name(name)
-    , m_parentFolder() {
+    , m_parentFolder()
+    , m_softLinks() {
 }
 
-FileBase::~FileBase() {}
+FileBase::~FileBase() {
+    FUNLOG(Debug, "delete %s", m_name.c_str());
+}
 
 std::shared_ptr<SoftLink> FileBase::generateSoftLink(const std::string &name, const std::shared_ptr<Folder> &parentFolder) {
     auto softLink = std::make_shared<SoftLink>(name, shared_from_this());
     if (parentFolder) {
         parentFolder->insertFile(softLink);
     }
+    m_softLinks.insert(std::make_pair(softLink.get(), softLink));
     return softLink;
 }
 
@@ -53,7 +57,7 @@ std::string Folder::dumpInfo() {
     for (auto &name2file: m_files) {
         auto &name = name2file.first;
         auto &file = name2file.second;
-        oss << name << "(" << std::string(fileTypeName[file->getFileType()]) << "): ";
+        oss << name << "(" << std::string(fileTypeName[file->getFileType()]) << "|SL:" << file->softLinkCnt() << "): ";
         oss << file->dumpInfo() << std::endl;
     }
     oss << "}";
@@ -116,7 +120,11 @@ SoftLink::SoftLink(const std::string &name, const std::shared_ptr<FileBase> &lin
     : FileBase(FileType::SOFTLINK, name)
     , m_linkFile(linkFile) {}
 
-SoftLink::~SoftLink() {}
+SoftLink::~SoftLink() {
+    if (!m_linkFile.expired()) {
+        m_linkFile.lock()->removeSoftLink(this);
+    }
+}
 
 std::string SoftLink::dumpInfo() {
     std::ostringstream oss;
