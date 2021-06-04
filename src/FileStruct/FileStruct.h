@@ -18,7 +18,7 @@ enum FileType {
     SOFTLINK,
     HARDLINK,
 };
-const static char *fileTypeName[] = {"FILE", "FOLDER", "SOFTLINK", "HARDLINK"}; 
+extern const char *fileTypeName[];
 class FileBase: public std::enable_shared_from_this<FileBase> {
 protected:
     FileType m_type;

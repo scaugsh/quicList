@@ -4,6 +4,8 @@
 #define FUNLOG(level, fmt, ...) printf(" [%s] %s(%d): " fmt "\n", __FUNCTION__, __FILE__, __LINE__, ##__VA_ARGS__)
 
 namespace aler {
+
+const char *fileTypeName[] = {"FILE", "FOLDER", "SOFTLINK", "HARDLINK"}; 
 FileBase::FileBase(FileType type, const std::string &name) 
     : m_type(type)
     , m_name(name)
@@ -57,7 +59,7 @@ std::string Folder::dumpInfo() {
     for (auto &name2file: m_files) {
         auto &name = name2file.first;
         auto &file = name2file.second;
-        oss << name << "(" << std::string(fileTypeName[file->getFileType()]) << "|SL:" << file->softLinkCnt() << "): ";
+        oss << name << "(" << std::string(fileTypeName[file->getFileType()]) << "|SL:" << file->softLinkCnt() << "|" << file->dumpPath() << "): ";
         oss << file->dumpInfo() << std::endl;
     }
     oss << "}";
